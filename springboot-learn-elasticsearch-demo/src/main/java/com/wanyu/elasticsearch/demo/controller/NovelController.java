@@ -4,13 +4,13 @@ import com.google.common.collect.Lists;
 import com.wanyu.elasticsearch.demo.common.CommonResult;
 import com.wanyu.elasticsearch.demo.dao.NovelRepository;
 import com.wanyu.elasticsearch.demo.domain.Novel;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -58,4 +58,48 @@ public class NovelController {
                                                @PathVariable("right")Integer right){
         return CommonResult.success(novelRepository.findByWordCountBetween(left,right));
     }
+
+    /**
+     * matchQuery 会精准匹配
+     * @param condition 值
+     * @return CommonResult
+     */
+    @GetMapping(value = "/match/title")
+    public CommonResult testMatchQuery(@RequestParam("condition") String condition){
+        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+        queryBuilder.withQuery(QueryBuilders.matchQuery("title",condition));
+        Page<Novel> novels = novelRepository.search(queryBuilder.build());
+        return CommonResult.success(novels);
+    }
+
+    /**
+     * termQuery 不仅可以查String类型，还能查询其他类型
+     * @param num 数量
+     * @return CommonResult
+     */
+    @GetMapping(value = "/term/{num}")
+    public CommonResult testTermQuery(@PathVariable("num")Integer num){
+        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+        queryBuilder.withQuery(QueryBuilders.termQuery("wordCount",num));
+        Page<Novel> novels = novelRepository.search(queryBuilder.build());
+        return CommonResult.success(novels);
+    }
+
+    @GetMapping(value = "/bool/{title}")
+    public CommonResult testBoolQuery(@PathVariable("title")String title){
+        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+        queryBuilder.withQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("title",title)));
+
+        Page<Novel> novels = novelRepository.search(queryBuilder.build());
+        return CommonResult.success(novels);
+    }
+
+    @GetMapping(value = "/fuzzy")
+    public CommonResult testFuzzyQuery(@RequestParam("title")String title){
+        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+        queryBuilder.withQuery(QueryBuilders.fuzzyQuery("title",title));
+        Page<Novel> novels = novelRepository.search(queryBuilder.build());
+        return CommonResult.success(novels);
+    }
+
 }

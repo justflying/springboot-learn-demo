@@ -11,13 +11,13 @@ public class CommonResult<T> {
 
     private String desc;
 
-    public CommonResult(Integer code,T t,String desc){
+    public CommonResult(Integer code,T t, String desc){
         this.code = code;
         this.data = t;
         this.desc = desc;
     }
 
     public static <T> CommonResult success(T t){
-        return new CommonResult<>(200,t,"操作成功");
+        return new CommonResult<>(ErrorCode.FIND_SUCCESS.getCode(),t,ErrorCode.FIND_SUCCESS.getDesc());
     }
 }

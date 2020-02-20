@@ -18,4 +18,6 @@ public interface NovelRepository extends ElasticsearchRepository<Novel,Long> {
     List<Novel> findByAuthor(String name);
 
     List<Novel> findByWordCountBetween(Integer left , Integer right);
+
+
 }
