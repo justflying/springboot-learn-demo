@@ -1,0 +1,8 @@
+spring:
+  profiles:
+    active: home
+logging:
+  level:
+    root: warn
+    # 配置这个会打印sql语句，
+    com.wanyu.mybatis.plus.demo.mapper: debug
