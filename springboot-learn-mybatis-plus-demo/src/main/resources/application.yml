@@ -4,5 +4,5 @@ spring:
 logging:
   level:
     root: warn
-    # 配置这个会打印sql语句，
+    # dao 灞傛墍鍦ㄧ殑鎺ュ彛
     com.wanyu.mybatis.plus.demo.mapper: debug
