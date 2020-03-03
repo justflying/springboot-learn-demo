@@ -39,4 +39,9 @@ public interface UserMapper extends BaseMapper<User> {
 }
 ```
 5.sql直接导出，并放在resource下面的sql里面
-6.开始使用条件构造器，代码在test下面的MyBatisPlusDemoApplicationTests文件中进行详细的编写
+
+6.test下面会对各个函数进行测试使用，以及更多用法，
+
+| 函数名                  |             中文    |  
+|:-----------------------|:---------------
+| AllEq                  |    全等于           |
