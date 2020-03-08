@@ -45,3 +45,6 @@ public interface UserMapper extends BaseMapper<User> {
 | 函数名                  |             中文    |  
 |:-----------------------|:---------------
 | AllEq                  |    全等于           |
+
+7.分页插件的使用
+使用分页插件，就可以配置一个MybatisPlusConfig配置类，需要对Application类做点小变动
