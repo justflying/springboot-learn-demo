@@ -1,4 +1,5 @@
-package com.wanyu.mybatis.plus.demo;
+package com.wanyu.mybatis.plus.demo.query;
+
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wanyu.mybatis.plus.demo.entity.User;
@@ -13,55 +14,56 @@ import java.util.List;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class BetweenAndNotBetweenTests {
+public class LtAndLeTests {
+
 
 
     @Resource
     private UserMapper userMapper;
 
     /**
-     * BETWEEN 值1 AND 值2
-     * between(R column, Object val1, Object val2)
-     * between(boolean condition, R column, Object val1, Object val2)
+     * 小于 <
+     * lt(R column, Object val)
+     * lt(boolean condition, R column, Object val)
      *
-     * NOT BETWEEN 值1 AND 值2
-     * notBetween(R column, Object val1, Object val2)
-     * notBetween(boolean condition, R column, Object val1, Object val2)
+     * 小于等于 <=
+     * le(R column, Object val)
+     * le(boolean condition, R column, Object val)
      */
     @Test
-    public void testBetween1(){
+    public void testLt1(){
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.between("age",18,30);
-        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE age BETWEEN ? AND ?
+        queryWrapper.lt("age",18);
+        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE age < ?
         List<User> users = userMapper.selectList(queryWrapper);
         users.forEach(System.out::println);
     }
 
     @Test
-    public void testBetween2(){
+    public void testLt2(){
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.between(false,"age",18,30);
+        queryWrapper.lt(true,"age",18);
+        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE age < ?
+        List<User> users = userMapper.selectList(queryWrapper);
+        users.forEach(System.out::println);
+    }
+
+
+    @Test
+    public void testLe1(){
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.le("age",18);
+        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE age <= ?
+        List<User> users = userMapper.selectList(queryWrapper);
+        users.forEach(System.out::println);
+    }
+
+    @Test
+    public void testLe2(){
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.le(false,"age",18);
         // SELECT id,name AS realName,age,email,manager_id,create_time FROM user
         List<User> users = userMapper.selectList(queryWrapper);
         users.forEach(System.out::println);
     }
-
-    @Test
-    public void testNotBetween1(){
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.notBetween("age",18,30);
-        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE age NOT BETWEEN ? AND ?
-        List<User> users = userMapper.selectList(queryWrapper);
-        users.forEach(System.out::println);
-    }
-
-    @Test
-    public void testNotBetween2(){
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.notBetween(true,"age",18,30);
-        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE age NOT BETWEEN ? AND ?
-        List<User> users = userMapper.selectList(queryWrapper);
-        users.forEach(System.out::println);
-    }
-
 }

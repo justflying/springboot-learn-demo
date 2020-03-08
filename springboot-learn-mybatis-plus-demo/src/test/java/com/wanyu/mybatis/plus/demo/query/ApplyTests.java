@@ -1,5 +1,4 @@
-package com.wanyu.mybatis.plus.demo;
-
+package com.wanyu.mybatis.plus.demo.query;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wanyu.mybatis.plus.demo.entity.User;
@@ -14,22 +13,24 @@ import java.util.List;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class GroupByTests {
+public class ApplyTests {
 
     @Resource
     private UserMapper userMapper;
 
     /**
-     * 分组：GROUP BY 字段, ...
-     * groupBy(R... columns)
-     * groupBy(boolean condition, R... columns)
+     * 拼接 sql
+     * apply(String applySql, Object... params)
+     * apply(boolean condition, String applySql, Object... params)
      */
+
     @Test
-    public void testGroupBy(){
+    public void testApply(){
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.groupBy("age","id");
-        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user GROUP BY age,id
+        queryWrapper.apply("name ='王天风'");
+        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE name ='王天风'
         List<User> users = userMapper.selectList(queryWrapper);
         users.forEach(System.out::println);
     }
+
 }

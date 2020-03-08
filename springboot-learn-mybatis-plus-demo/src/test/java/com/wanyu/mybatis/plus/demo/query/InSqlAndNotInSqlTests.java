@@ -1,5 +1,4 @@
-package com.wanyu.mybatis.plus.demo;
-
+package com.wanyu.mybatis.plus.demo.query;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wanyu.mybatis.plus.demo.entity.User;
@@ -14,52 +13,59 @@ import java.util.List;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class EqAndNeTests {
+public class InSqlAndNotInSqlTests {
 
     @Resource
     private UserMapper userMapper;
 
     /**
-     * eq 等于 =
-     * 1.eq(R column, Object val)
-     * 2.eq(boolean condition, R column, Object val)
-     * ne 不等于 <>
-     * ne(R column, Object val)
-     * ne(boolean condition, R column, Object val)
+     * 字段 IN ( sql语句 )
+     * inSql(R column, String inValue)
+     * inSql(boolean condition, R column, String inValue)
+     * 例: inSql("age", "1,2,3,4,5,6")--->age in (1,2,3,4,5,6)
+     * 例: inSql("id", "select id from table where id < 3")--->id in (select id from table where id < 3)
+     *
+     * 字段 NOT IN ( sql语句 )
+     * notInSql(R column, String inValue)
+     * notInSql(boolean condition, R column, String inValue)
+     *
      */
     @Test
-    public void testEq1(){
+    public void testInSql1(){
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("name","王天风");
-        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE name = ?
+        queryWrapper.inSql("age", "18,20,23");
+        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE age IN (18,20,23)
         List<User> users = userMapper.selectList(queryWrapper);
         users.forEach(System.out::println);
     }
 
     @Test
-    public void testEq2(){
+    public void testInSql2(){
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq(false,"name","王天风");
+        queryWrapper.inSql("age", "select age from user where age between 18 and 40");
         // SELECT id,name AS realName,age,email,manager_id,create_time FROM user
+        // WHERE age IN (select age from user where age between 18 and 40)
         List<User> users = userMapper.selectList(queryWrapper);
         users.forEach(System.out::println);
     }
 
     @Test
-    public void testNe1(){
+    public void testNotInSql1(){
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.ne("name","王天风");
-        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE name <> ?
+        queryWrapper.notInSql("age", "18,20,23");
+        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE age NOT IN (18,20,23)
         List<User> users = userMapper.selectList(queryWrapper);
         users.forEach(System.out::println);
     }
 
     @Test
-    public void testNe2(){
+    public void testNotInSql2(){
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.ne(false,"name","王天风");
+        queryWrapper.notInSql("age", "select age from user where age between 18 and 40");
         // SELECT id,name AS realName,age,email,manager_id,create_time FROM user
+        // WHERE age NOT IN (select age from user where age between 18 and 40)
         List<User> users = userMapper.selectList(queryWrapper);
         users.forEach(System.out::println);
     }
+
 }

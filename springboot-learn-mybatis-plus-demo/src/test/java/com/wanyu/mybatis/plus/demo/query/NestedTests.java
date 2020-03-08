@@ -1,4 +1,5 @@
-package com.wanyu.mybatis.plus.demo;
+package com.wanyu.mybatis.plus.demo.query;
+
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wanyu.mybatis.plus.demo.entity.User;
@@ -13,37 +14,31 @@ import java.util.List;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class IsNullAndIsNotNullTests {
+public class NestedTests {
 
     @Resource
     private UserMapper userMapper;
 
     /**
-     * 字段 IS NULL
-     * isNull(R column)
-     * isNull(boolean condition, R column)
-     *
-     * 字段 IS NOT NULL
-     * isNotNull(R column)
-     * isNotNull(boolean condition, R column)
+     * 正常嵌套 不带 AND 或者 OR
+     * nested(Consumer<Param> consumer)
+     * nested(boolean condition, Consumer<Param> consumer)
      */
     @Test
-    public void testIsNull(){
+    public void testNested(){
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.isNull("email");
-        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE email IS NULL
+        queryWrapper.eq("email",null).nested(i->i.eq("name","王天风").eq("age",30));
+        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE email = ? AND ( name = ? AND age = ? )
         List<User> users = userMapper.selectList(queryWrapper);
         users.forEach(System.out::println);
     }
 
     @Test
-    public void testIsNotNull(){
+    public void testAnd(){
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.isNotNull("email");
-        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE email IS NOT NULL
+        queryWrapper.eq("email",null).and(i->i.eq("name","王天风").eq("age",30));
+        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE email = ? AND ( name = ? AND age = ? )
         List<User> users = userMapper.selectList(queryWrapper);
         users.forEach(System.out::println);
     }
-
 }
-

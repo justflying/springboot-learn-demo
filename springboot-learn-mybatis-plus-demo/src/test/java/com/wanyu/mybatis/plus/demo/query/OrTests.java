@@ -1,4 +1,4 @@
-package com.wanyu.mybatis.plus.demo;
+package com.wanyu.mybatis.plus.demo.query;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wanyu.mybatis.plus.demo.entity.User;
@@ -13,35 +13,36 @@ import java.util.List;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class LikeLeftAndLikeRightTests {
+public class OrTests {
+
 
     @Resource
     private UserMapper userMapper;
 
-    /**
-     * LIKE '%值'
-     * likeLeft(R column, Object val)
-     * likeLeft(boolean condition, R column, Object val)
-     *
-     * LIKE '值%'
-     * likeRight(R column, Object val)
-     * likeRight(boolean condition, R column, Object val)
-     */
 
+    /**
+     * 拼接 OR
+     * or()
+     * or(boolean condition)
+     *
+     * OR 嵌套
+     * or(Consumer<Param> consumer)
+     * or(boolean condition, Consumer<Param> consumer)
+     */
     @Test
-    public void testLikeLeft(){
+    public void testOr1(){
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.likeLeft("name","王");
-        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE name LIKE '%王'
+        queryWrapper.eq("name","王天风").or().ge("age",30);
+        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE name = ? OR age >= ?
         List<User> users = userMapper.selectList(queryWrapper);
         users.forEach(System.out::println);
     }
 
     @Test
-    public void testLikeRight(){
+    public void testOr2(){
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.likeRight("name","王");
-        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE name LIKE 王%
+        queryWrapper.ne("email",null).or(i->i.eq("name","王天风").ne("age",40));
+        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE email <> ? OR ( name = ? AND age <> ? )
         List<User> users = userMapper.selectList(queryWrapper);
         users.forEach(System.out::println);
     }

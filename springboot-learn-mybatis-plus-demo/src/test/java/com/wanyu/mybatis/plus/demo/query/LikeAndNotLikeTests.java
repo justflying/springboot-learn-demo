@@ -1,4 +1,5 @@
-package com.wanyu.mybatis.plus.demo;
+package com.wanyu.mybatis.plus.demo.query;
+
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wanyu.mybatis.plus.demo.entity.User;
@@ -13,56 +14,55 @@ import java.util.List;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class OrderByTests {
+public class LikeAndNotLikeTests {
+
 
     @Resource
     private UserMapper userMapper;
 
+
     /**
-     * 排序：ORDER BY 字段, ...
-     * orderBy(boolean condition, boolean isAsc, R... columns)
+     * LIKE '%值%'
+     * like(R column, Object val)
+     * like(boolean condition, R column, Object val)
      *
-     * 排序：ORDER BY 字段, ... ASC
-     * orderByAsc(R... columns)
-     * orderByAsc(boolean condition, R... columns)
-     *
-     * 排序：ORDER BY 字段, ... DESC
-     * orderByDesc(R... columns)
-     * orderByDesc(boolean condition, R... columns)
+     * NOT LIKE '%值%'
+     * notLike(R column, Object val)
+     * notLike(boolean condition, R column, Object val)
      */
-
     @Test
-    public void testOrderBy(){
+    public void testLike1(){
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderBy(true,true,"id","name");
-        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user ORDER BY id ASC , name ASC
+        queryWrapper.like("name","风");
+        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE name LIKE ?
         List<User> users = userMapper.selectList(queryWrapper);
         users.forEach(System.out::println);
     }
 
     @Test
-    public void testOrderByAsc(){
+    public void testLike2(){
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderByAsc("id","name");
-        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user ORDER BY id ASC , name ASC
+        queryWrapper.like(false,"name","风");
+        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user
+        List<User> users = userMapper.selectList(queryWrapper);
+        users.forEach(System.out::println);
+    }
+
+
+    @Test
+    public void testNotLike1(){
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.notLike("name","风");
+        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE name NOT LIKE ?
         List<User> users = userMapper.selectList(queryWrapper);
         users.forEach(System.out::println);
     }
 
     @Test
-    public void testOrderByDesc(){
+    public void testNotLike2(){
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderByDesc("id","name");
-        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user ORDER BY id DESC , name DESC
-        List<User> users = userMapper.selectList(queryWrapper);
-        users.forEach(System.out::println);
-    }
-
-    @Test
-    public void testOrderByDescAndOrderByAsc(){
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderByDesc("id").orderByAsc("name");
-        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user ORDER BY id DESC , name ASC
+        queryWrapper.notLike(true,"name","风");
+        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE name NOT LIKE ?
         List<User> users = userMapper.selectList(queryWrapper);
         users.forEach(System.out::println);
     }

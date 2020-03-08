@@ -1,4 +1,4 @@
-package com.wanyu.mybatis.plus.demo;
+package com.wanyu.mybatis.plus.demo.query;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -14,56 +14,58 @@ import java.util.List;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class LtAndLeTests {
-
-
+public class GtAndGeTests {
 
     @Resource
     private UserMapper userMapper;
 
     /**
-     * 小于 <
-     * lt(R column, Object val)
-     * lt(boolean condition, R column, Object val)
+     * 大于 >
+     * gt(R column, Object val)
+     * gt(boolean condition, R column, Object val)
      *
-     * 小于等于 <=
-     * le(R column, Object val)
-     * le(boolean condition, R column, Object val)
+     * 大于等于 >=
+     * ge(R column, Object val)
+     * ge(boolean condition, R column, Object val)
+     *
      */
-    @Test
-    public void testLt1(){
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lt("age",18);
-        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE age < ?
-        List<User> users = userMapper.selectList(queryWrapper);
-        users.forEach(System.out::println);
-    }
 
     @Test
-    public void testLt2(){
+    public void testGt1(){
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lt(true,"age",18);
-        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE age < ?
+        queryWrapper.gt("age",18);
+        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE age > ?
         List<User> users = userMapper.selectList(queryWrapper);
         users.forEach(System.out::println);
     }
 
 
     @Test
-    public void testLe1(){
+    public void testGt2(){
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.le("age",18);
-        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE age <= ?
-        List<User> users = userMapper.selectList(queryWrapper);
-        users.forEach(System.out::println);
-    }
-
-    @Test
-    public void testLe2(){
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.le(false,"age",18);
+        queryWrapper.gt(false,"age",18);
         // SELECT id,name AS realName,age,email,manager_id,create_time FROM user
         List<User> users = userMapper.selectList(queryWrapper);
         users.forEach(System.out::println);
     }
+
+    @Test
+    public void testGe1(){
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.ge("age",18);
+        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user WHERE age >= ?
+        List<User> users = userMapper.selectList(queryWrapper);
+        users.forEach(System.out::println);
+    }
+
+
+    @Test
+    public void testGe2(){
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.ge(false,"age",18);
+        // SELECT id,name AS realName,age,email,manager_id,create_time FROM user
+        List<User> users = userMapper.selectList(queryWrapper);
+        users.forEach(System.out::println);
+    }
+
 }
