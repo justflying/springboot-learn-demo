@@ -6,3 +6,14 @@ logging:
     root: warn
     # dao 层所在的接口
     com.wanyu.mybatis.plus.demo.mapper: debug
+    pattern:
+      console: '%p$m%n'
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  # config-location: classpath:mybatis-config.xml
+  # 省去全路径，直接写类
+  type-aliases-package: com.wanyu.mybatis.plus.demo.entity
+  # 该注解不能同时和 config-location 同时出现
+  configuration:
+    map-underscore-to-camel-case: true

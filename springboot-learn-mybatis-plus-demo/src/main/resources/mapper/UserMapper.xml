@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.mybatis.plus.demo.dao.UserMapper">
+<mapper namespace="com.wanyu.mybatis.plus.demo.mapper.UserMapper">
 
+    <select id="selectPageByAge" resultType="com.wanyu.mybatis.plus.demo.entity.User">
+        SELECT * FROM user WHERE age = #{age}
+    </select>
+
+    <select id="getAll" resultType="com.wanyu.mybatis.plus.demo.entity.User">
+        SELECT * FROM user
+    </select>
 </mapper>
