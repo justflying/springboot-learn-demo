@@ -1,6 +1,8 @@
 spring:
   profiles:
     active: home
+  application:
+    name: mybatis-plus-demo
 logging:
   level:
     root: warn
