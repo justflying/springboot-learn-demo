@@ -1,4 +1,4 @@
-package com.wanyu.springboot.learn.rabbitmq.demo.workfair;
+package com.wanyu.springboot.learn.rabbitmq.demo.ps;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -11,6 +11,7 @@ public class Producer {
 
     private static final String QUEUE_NAME = "work_queue";
 
+    private static final String EXCHANGE_NAME = "exchange_fanout";
 
     public static void main(String[] args) throws Exception{
         // 1. 获取connection
@@ -18,6 +19,9 @@ public class Producer {
 
         // 2. 获取channel
         Channel channel = connection.createChannel();
+
+        // 3. 声明一个交换机
+        channel.exchangeDeclare(EXCHANGE_NAME,"fanout");
 
         // 3. 创建一个Queue  并持久化到消息队列
         channel.queueDeclare(QUEUE_NAME,true,false,false,null);

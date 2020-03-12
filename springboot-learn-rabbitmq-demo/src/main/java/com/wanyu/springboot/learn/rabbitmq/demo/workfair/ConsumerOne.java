@@ -18,8 +18,8 @@ public class ConsumerOne {
         // 2. 获取channel
         Channel channel = connection.createChannel();
 
-        // 3. 创建一个Queue  这里并没有把我们要做测试的消息持久化（存到磁盘）
-        channel.queueDeclare(QUEUE_NAME,false,false,false,null);
+        // 3. 创建一个Queue  并持久化
+        channel.queueDeclare(QUEUE_NAME,true,false,false,null);
 
         channel.basicQos(1); // 保证一次只分发一个
 

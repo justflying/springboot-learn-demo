@@ -1,4 +1,4 @@
-package com.wanyu.springboot.learn.rabbitmq.demo.workfair;
+package com.wanyu.springboot.learn.rabbitmq.demo.ps;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
