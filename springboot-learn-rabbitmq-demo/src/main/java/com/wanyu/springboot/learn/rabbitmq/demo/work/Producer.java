@@ -23,7 +23,7 @@ public class Producer {
         channel.queueDeclare(QUEUE_NAME,false,false,false,null);
 
         for (int i = 0; i < 50; i++) {
-            String msg = "Hello RabbitMQ " + " + " + i;
+            String msg = "Hello RabbitMQ Work Round-Robin" + " + " + i;
             // 3. 发布消息
             channel.basicPublish("",QUEUE_NAME,null,msg.getBytes(StandardCharsets.UTF_8));
             Thread.sleep( i * 20);

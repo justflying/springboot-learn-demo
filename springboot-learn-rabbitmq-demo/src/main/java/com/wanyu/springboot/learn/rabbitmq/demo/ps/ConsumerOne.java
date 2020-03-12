@@ -9,7 +9,9 @@ import java.nio.charset.StandardCharsets;
 
 public class ConsumerOne {
 
-    private static final String QUEUE_NAME = "work_queue";
+    private static final String EXCHANGE_NAME = "exchange_fanout";
+    private static final String EXCHANGE_TYPE = "fanout";
+    private static final String QUEUE_NAME = "publish_subscribe_one";
 
     public static void main(String[] args) throws Exception{
         // 1. 获取connection
@@ -19,11 +21,12 @@ public class ConsumerOne {
         Channel channel = connection.createChannel();
 
         // 3. 声明（创建）一个交换机
+        channel.exchangeDeclare(EXCHANGE_NAME,EXCHANGE_TYPE);
 
-        // 3. 创建一个Queue  并持久化
-        channel.queueDeclare(QUEUE_NAME,true,false,false,null);
+        // 4. 创建一个Queue  并持久化
+        channel.queueDeclare(QUEUE_NAME,false,false,false,null);
 
-        channel.basicQos(1); // 保证一次只分发一个
+        channel.queueBind(QUEUE_NAME,EXCHANGE_NAME, "");
 
         System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 
@@ -50,17 +53,8 @@ public class ConsumerOne {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
             System.out.println(" ConsumerOne Received: " + message);
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }finally {
-                System.out.println(" ConsumerOne is Done ");
-                // 应答消费完毕
-                channel.basicAck(delivery.getEnvelope().getDeliveryTag(),false);
-            }
         };
-        channel.basicConsume(QUEUE_NAME, false, deliverCallback, consumerTag -> {});
+        channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> {});
     }
 
 }

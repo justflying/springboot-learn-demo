@@ -1,4 +1,4 @@
-package com.wanyu.springboot.learn.rabbitmq.demo.ps;
+package com.wanyu.springboot.learn.rabbitmq.demo.routing;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -6,14 +6,12 @@ import com.rabbitmq.client.DeliverCallback;
 import com.wanyu.springboot.learn.rabbitmq.demo.util.ConnectionUtil;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Queue;
 
+public class ConsumerOne {
 
-public class ConsumerTwo {
-
-    private static final String EXCHANGE_NAME = "exchange_fanout";
-    private static final String EXCHANGE_TYPE = "fanout";
-    private static final String QUEUE_NAME = "publish_subscribe_two";
+    private static final String EXCHANGE_NAME = "exchange_direct";
+    private static final String EXCHANGE_TYPE = "direct";
+    private static final String QUEUE_NAME = "info_error_warn";
 
     public static void main(String[] args) throws Exception{
         // 1. 获取connection
@@ -28,7 +26,13 @@ public class ConsumerTwo {
         // 4. 创建一个Queue  并持久化
         channel.queueDeclare(QUEUE_NAME,false,false,false,null);
 
-        channel.queueBind(QUEUE_NAME,EXCHANGE_NAME, "");
+        String error_routing_key = "error";
+        String info_routing_key = "info";
+        String warn_routing_key = "warn";
+
+        channel.queueBind(QUEUE_NAME,EXCHANGE_NAME, error_routing_key);
+        channel.queueBind(QUEUE_NAME,EXCHANGE_NAME, info_routing_key);
+        channel.queueBind(QUEUE_NAME,EXCHANGE_NAME, warn_routing_key);
 
         System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 
@@ -41,7 +45,7 @@ public class ConsumerTwo {
 //                String msg = new String(body, StandardCharsets.UTF_8);
 //                System.out.println("ConsumerOne Received: " +msg);
 //                try {
-//                    Thread.sleep(1000);
+//                    Thread.sleep(2000);
 //                }catch (Exception ex){
 //                    ex.printStackTrace();
 //                }finally {
@@ -54,10 +58,8 @@ public class ConsumerTwo {
         // rabbitmq官网推荐方式
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
-            System.out.println(" ConsumerTwo Received: " + message );
-
-            System.out.println(" ConsumerTwo is Done ");
-
+            System.out.println(" ConsumerOne Received: " + message);
+            System.out.println(" ConsumerOne is Done");
         };
         channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> {});
     }
