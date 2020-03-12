@@ -22,7 +22,7 @@ public class Producer {
         // 3. 创建一个Queue  这里并没有把我们要做测试的消息持久化（存到磁盘）
         channel.queueDeclare(QUEUE_NAME,false,false,false,null);
 
-        for (int i = 0; i < 50; i++) {
+        for (int i = 1; i < 51; i++) {
             String msg = "Hello RabbitMQ " + " + " + i;
             // 3. 发布消息
             channel.basicPublish("",QUEUE_NAME,null,msg.getBytes(StandardCharsets.UTF_8));

@@ -56,8 +56,7 @@ public class ConsumerTwo {
                 channel.basicAck(delivery.getEnvelope().getDeliveryTag(),false);
             }
         };
-        boolean autoAck = false;
-        channel.basicConsume(QUEUE_NAME, autoAck, deliverCallback, consumerTag -> {});
+        channel.basicConsume(QUEUE_NAME, false, deliverCallback, consumerTag -> {});
     }
 
 }
