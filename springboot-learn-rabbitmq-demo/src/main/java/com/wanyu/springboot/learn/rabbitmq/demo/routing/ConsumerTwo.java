@@ -1,4 +1,4 @@
-package com.wanyu.springboot.learn.rabbitmq.demo.ps;
+package com.wanyu.springboot.learn.rabbitmq.demo.routing;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -6,14 +6,13 @@ import com.rabbitmq.client.DeliverCallback;
 import com.wanyu.springboot.learn.rabbitmq.demo.util.ConnectionUtil;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Queue;
 
 
 public class ConsumerTwo {
 
-    private static final String EXCHANGE_NAME = "exchange_fanout";
-    private static final String EXCHANGE_TYPE = "fanout";
-    private static final String QUEUE_NAME = "publish_subscribe_two";
+    private static final String EXCHANGE_NAME = "exchange_direct";
+    private static final String EXCHANGE_TYPE = "direct";
+    private static final String QUEUE_NAME = "error";
 
     public static void main(String[] args) throws Exception{
         // 1. 获取connection
@@ -28,7 +27,7 @@ public class ConsumerTwo {
         // 4. 创建一个Queue  并持久化
         channel.queueDeclare(QUEUE_NAME,false,false,false,null);
 
-        channel.queueBind(QUEUE_NAME,EXCHANGE_NAME, "");
+        channel.queueBind(QUEUE_NAME,EXCHANGE_NAME, QUEUE_NAME);
 
         System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 
