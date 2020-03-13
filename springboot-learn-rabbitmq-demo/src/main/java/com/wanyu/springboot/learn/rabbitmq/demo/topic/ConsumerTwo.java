@@ -1,4 +1,4 @@
-package com.wanyu.springboot.learn.rabbitmq.demo.ps;
+package com.wanyu.springboot.learn.rabbitmq.demo.topic;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -6,14 +6,13 @@ import com.rabbitmq.client.DeliverCallback;
 import com.wanyu.springboot.learn.rabbitmq.demo.util.ConnectionUtil;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Queue;
 
 
 public class ConsumerTwo {
 
-    private static final String EXCHANGE_NAME = "exchange_fanout";
-    private static final String EXCHANGE_TYPE = "fanout";
-    private static final String QUEUE_NAME = "publish_subscribe_two";
+    private static final String EXCHANGE_NAME = "exchange_topic";
+
+    private static final String EXCHANGE_TYPE = "topic";
 
     public static void main(String[] args) throws Exception{
         // 1. 获取connection
@@ -26,9 +25,11 @@ public class ConsumerTwo {
         channel.exchangeDeclare(EXCHANGE_NAME,EXCHANGE_TYPE);
 
         // 4. 创建一个Queue
-        channel.queueDeclare(QUEUE_NAME,false,false,false,null);
+        String queue = channel.queueDeclare().getQueue();
 
-        channel.queueBind(QUEUE_NAME,EXCHANGE_NAME, "");
+        String key = "test.*";
+
+        channel.queueBind(queue,EXCHANGE_NAME,key);
 
         System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 
@@ -59,7 +60,7 @@ public class ConsumerTwo {
             System.out.println(" ConsumerTwo is Done ");
 
         };
-        channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> {});
+        channel.basicConsume(queue, true, deliverCallback, consumerTag -> {});
     }
 
 }

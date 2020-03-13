@@ -20,7 +20,6 @@ public class Producer {
         // 2. 获取channel
         Channel channel = connection.createChannel();
 
-
         // 3. 生命一个Exchange
         channel.exchangeDeclare(EXCHANGE_NAME,EXCHANGE_TYPE);
 

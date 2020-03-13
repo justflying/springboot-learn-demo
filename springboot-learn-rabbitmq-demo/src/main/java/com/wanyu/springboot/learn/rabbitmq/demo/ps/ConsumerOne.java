@@ -23,7 +23,7 @@ public class ConsumerOne {
         // 3. 声明（创建）一个交换机
         channel.exchangeDeclare(EXCHANGE_NAME,EXCHANGE_TYPE);
 
-        // 4. 创建一个Queue  并持久化
+        // 4. 创建一个Queue
         channel.queueDeclare(QUEUE_NAME,false,false,false,null);
 
         channel.queueBind(QUEUE_NAME,EXCHANGE_NAME, "");

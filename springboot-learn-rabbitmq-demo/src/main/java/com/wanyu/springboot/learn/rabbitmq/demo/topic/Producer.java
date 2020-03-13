@@ -1,4 +1,4 @@
-package com.wanyu.springboot.learn.rabbitmq.demo.ps;
+package com.wanyu.springboot.learn.rabbitmq.demo.topic;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -9,9 +9,9 @@ import java.nio.charset.StandardCharsets;
 public class Producer {
 
 
-    private static final String EXCHANGE_NAME = "exchange_fanout";
+    private static final String EXCHANGE_NAME = "exchange_topic";
 
-    private static final String EXCHANGE_TYPE = "fanout";
+    private static final String EXCHANGE_TYPE = "topic";
 
     public static void main(String[] args) throws Exception{
         // 1. 获取connection
@@ -23,9 +23,10 @@ public class Producer {
         // 3. 生命一个Exchange
         channel.exchangeDeclare(EXCHANGE_NAME,EXCHANGE_TYPE);
 
-        String msg = "Hello RabbitMQ Fanout";
+        String msg = "Hello RabbitMQ Topic";
+
         // 4. 发布消息到交换机
-        channel.basicPublish(EXCHANGE_NAME,"",null,msg.getBytes(StandardCharsets.UTF_8));
+        channel.basicPublish(EXCHANGE_NAME,"test.info.xxx",null,msg.getBytes(StandardCharsets.UTF_8));
 
         System.out.println("生产者发送消息： "+ msg);
 

@@ -13,7 +13,7 @@ public class ConstantUtil {
 
     public static final String PASSWORD = "myroot";
 
-//
+
 //    public static final String HOST = "120.78.131.194";
 //
 //    public static final Integer PORT = 5672;
