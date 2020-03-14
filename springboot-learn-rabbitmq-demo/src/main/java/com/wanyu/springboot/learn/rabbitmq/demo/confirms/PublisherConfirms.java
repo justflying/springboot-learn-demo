@@ -1,4 +1,4 @@
-package com.wanyu.springboot.learn.rabbitmq.demo.publisher_confirms;
+package com.wanyu.springboot.learn.rabbitmq.demo.confirms;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.ConfirmCallback;
@@ -27,8 +27,8 @@ public class PublisherConfirms {
 
 
     public static void main(String[] args) throws Exception {
-        publishMessagesIndividually();
-        publishMessagesInBatch();
+//        publishMessagesIndividually();
+//        publishMessagesInBatch();
         handlePublishConfirmsAsynchronously();
     }
 
@@ -47,8 +47,7 @@ public class PublisherConfirms {
                 ch.waitForConfirmsOrDie(5_000);
             }
             long end = System.nanoTime();
-            System.out.format("Published %,d messages individually in %,d ms%n", MESSAGE_COUNT,
-                    Duration.ofNanos(end - start).toMillis());
+            System.out.format("Published %,d messages individually in %,d ms%n", MESSAGE_COUNT, Duration.ofNanos(end - start).toMillis());
         }
     }
 
@@ -127,8 +126,7 @@ public class PublisherConfirms {
             }
 
             long end = System.nanoTime();
-            System.out.format("Published %,d messages and handled confirms asynchronously in %,d ms%n",
-                    MESSAGE_COUNT, Duration.ofNanos(end - start).toMillis());
+            System.out.format("Published %,d messages and handled confirms asynchronously in %,d ms%n", MESSAGE_COUNT, Duration.ofNanos(end - start).toMillis());
         }
     }
 
@@ -140,6 +138,5 @@ public class PublisherConfirms {
         }
         return condition.getAsBoolean();
     }
-
 }
 

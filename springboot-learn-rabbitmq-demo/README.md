@@ -289,4 +289,16 @@ channel.basicPublish(EXCHANGE_NAME,"test.info.xxx",null,msg.getBytes());
 
 又分为单独和批量
 
+这里生产者只需要添加代码
+
+```java
+channel.confirmSelect();
+// 等待服务端返回confirm 或者时间超过默认失败
+channel.waitForConfirmsOrDie(5_000);
+```
+
+在这里使用的时候发现会很慢。因为是串行，也提供了批量
+
 ##### 6.2 消息确认机制之异步
+
+如果失败，会有一个序列号返回，根据这个序列号，可以进行其他操作
