@@ -25,7 +25,7 @@ public class ConsumerTwo {
 
 
         // 旧的方式获取消息
-//        Consumer consumer = new DefaultConsumer(channel){
+//        ConsumerOne consumer = new DefaultConsumer(channel){
 //            @Override
 //            public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
 //                super.handleDelivery(consumerTag, envelope, properties, body);

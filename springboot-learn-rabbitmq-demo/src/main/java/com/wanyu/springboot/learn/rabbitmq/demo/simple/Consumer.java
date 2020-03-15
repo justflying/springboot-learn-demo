@@ -24,7 +24,7 @@ public class Consumer {
         System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 
         // 旧的方式获取消息
-//        com.rabbitmq.client.Consumer consumer = new DefaultConsumer(channel){
+//        com.rabbitmq.client.ConsumerOne consumer = new DefaultConsumer(channel){
 //            @Override
 //            public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
 //                super.handleDelivery(consumerTag, envelope, properties, body);
