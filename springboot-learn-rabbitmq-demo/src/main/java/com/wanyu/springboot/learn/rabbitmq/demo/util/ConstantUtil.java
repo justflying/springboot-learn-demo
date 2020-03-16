@@ -33,7 +33,9 @@ public class ConstantUtil {
 
     public static final String FANOUT_EXCHANGE_NAME = "boot_fanout_exchange_name";
 
-    public static final String FANOUT_QUEUE_NAME = "boot_fanout_queue_name";
+    public static final String FANOUT_QUEUE_A = "boot_fanout_queue_A";
+
+    public static final String FANOUT_QUEUE_B = "boot_fanout_queue_B";
 
 
     public static final String TOPIC_EXCHANGE_NAME = "boot_topic_exchange_name";

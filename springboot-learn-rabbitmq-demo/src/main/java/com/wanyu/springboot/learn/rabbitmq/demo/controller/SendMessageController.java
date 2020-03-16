@@ -33,4 +33,17 @@ public class SendMessageController {
         return "ok";
     }
 
+    @GetMapping(value = "/send-fanout-test")
+    public String sendFanoutMessage(){
+        String messageId = String.valueOf(UUID.randomUUID());
+        String messageData = "Hello RabbitMQ Fanout";
+        String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        Map<String,String>  map = new HashMap<>();
+        map.put("messageId",messageId);
+        map.put("messageData",messageData);
+        map.put("createTime",createTime);
+        rabbitTemplate.convertAndSend(ConstantUtil.FANOUT_EXCHANGE_NAME,"",map);
+        return "ok";
+    }
+
 }
