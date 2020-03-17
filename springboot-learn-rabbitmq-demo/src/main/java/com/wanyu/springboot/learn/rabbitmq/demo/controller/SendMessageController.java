@@ -46,4 +46,31 @@ public class SendMessageController {
         return "ok";
     }
 
+
+    @GetMapping(value = "/send-topic-test-a")
+    public String sendTopicMessageA(){
+        String messageId = String.valueOf(UUID.randomUUID());
+        String messageData = "Hello RabbitMQ Topic";
+        String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        Map<String,String>  map = new HashMap<>();
+        map.put("messageId",messageId);
+        map.put("messageData",messageData);
+        map.put("createTime",createTime);
+        rabbitTemplate.convertAndSend(ConstantUtil.TOPIC_EXCHANGE_NAME,ConstantUtil.TOPIC_ROUTING_KEY_A,map);
+        return "ok";
+    }
+
+
+    @GetMapping(value = "/send-topic-test-b")
+    public String sendTopicMessageB(){
+        String messageId = String.valueOf(UUID.randomUUID());
+        String messageData = "Hello RabbitMQ Topic";
+        String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        Map<String,String>  map = new HashMap<>();
+        map.put("messageId",messageId);
+        map.put("messageData",messageData);
+        map.put("createTime",createTime);
+        rabbitTemplate.convertAndSend(ConstantUtil.TOPIC_EXCHANGE_NAME,ConstantUtil.TOPIC_ROUTING_KEY_B,map);
+        return "ok";
+    }
 }

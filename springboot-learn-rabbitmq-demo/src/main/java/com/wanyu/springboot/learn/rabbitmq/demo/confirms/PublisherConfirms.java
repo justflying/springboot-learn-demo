@@ -32,7 +32,7 @@ public class PublisherConfirms {
         handlePublishConfirmsAsynchronously();
     }
 
-    static void publishMessagesIndividually() throws Exception {
+    private static void publishMessagesIndividually() throws Exception {
         try (Connection connection = createConnection()) {
             Channel ch = connection.createChannel();
 
@@ -51,7 +51,7 @@ public class PublisherConfirms {
         }
     }
 
-    static void publishMessagesInBatch() throws Exception {
+    private static void publishMessagesInBatch() throws Exception {
         try (Connection connection = createConnection()) {
             Channel ch = connection.createChannel();
 
@@ -83,7 +83,7 @@ public class PublisherConfirms {
         }
     }
 
-    static void handlePublishConfirmsAsynchronously() throws Exception {
+    private static void handlePublishConfirmsAsynchronously() throws Exception {
         try (Connection connection = createConnection()) {
             Channel ch = connection.createChannel();
 
@@ -130,7 +130,7 @@ public class PublisherConfirms {
         }
     }
 
-    static boolean waitUntil(Duration timeout, BooleanSupplier condition) throws InterruptedException {
+    private static boolean waitUntil(Duration timeout, BooleanSupplier condition) throws InterruptedException {
         int waited = 0;
         while (!condition.getAsBoolean() && waited < timeout.toMillis()) {
             Thread.sleep(100L);

@@ -297,8 +297,78 @@ channel.confirmSelect();
 channel.waitForConfirmsOrDie(5_000);
 ```
 
-在这里使用的时候发现会很慢。因为是串行，也提供了批量
+在这里使用的时候发现会很慢。因为是串行，也提供了批量，代码如下
+
+```java
+			ch.confirmSelect();
+            int batchSize = 100;
+            int outstandingMessageCount = 0;
+
+            long start = System.nanoTime();
+            for (int i = 0; i < MESSAGE_COUNT; i++) {
+                String body = String.valueOf(i);
+                ch.basicPublish("", queue, null, body.getBytes());
+                outstandingMessageCount++;
+				// 思路，发100次之后，开始使用waitForConfirmsOrDie函数，
+                if (outstandingMessageCount == batchSize) {
+                    ch.waitForConfirmsOrDie(5_000);
+                    outstandingMessageCount = 0;
+                }
+            }
+
+            if (outstandingMessageCount > 0) {
+                ch.waitForConfirmsOrDie(5_000);
+            }
+```
+
+
 
 ##### 6.2 消息确认机制之异步
 
-如果失败，会有一个序列号返回，根据这个序列号，可以进行其他操作
+```java
+			ch.confirmSelect();
+            ConcurrentNavigableMap<Long, String> outstandingConfirms =
+                							new ConcurrentSkipListMap<>();
+
+            ConfirmCallback cleanOutstandingConfirms = (sequenceNumber, multiple) -> {
+                if (multiple) {
+                    ConcurrentNavigableMap<Long, String> confirmed = 	       	        									outstandingConfirms.headMap(sequenceNumber, true);
+                    confirmed.clear();
+                } else {
+                    outstandingConfirms.remove(sequenceNumber);
+                }
+            };
+
+            ch.addConfirmListener(cleanOutstandingConfirms, (sequenceNumber, multiple) -> {
+                String body = outstandingConfirms.get(sequenceNumber);
+                System.err.format(
+                        "Message with body %s has been nack-ed. Sequence number: %d, multiple: %b%n",
+                        body, sequenceNumber, multiple
+                );
+                cleanOutstandingConfirms.handle(sequenceNumber, multiple);
+            });
+
+            long start = System.nanoTime();
+            for (int i = 0; i < MESSAGE_COUNT; i++) {
+                String body = String.valueOf(i);
+                outstandingConfirms.put(ch.getNextPublishSeqNo(), body);
+                ch.basicPublish("", queue, null, body.getBytes());
+            }
+```
+
+// 第一个是ack 成功返回，第二个是不成功返回
+
+ch.addConfirmListener(ConfirmCallback ackCallback, ConfirmCallback nackCallback);
+
+其中两个参数，分别由不同的含义
+
+> - sequence number: a number that identifies the confirmed or nack-ed message. We will see shortly how to correlate it with the published message.
+>
+> - multiple: this is a boolean value. If false, only one message is confirmed/nack-ed, if true, all messages with a lower or equal sequence number are confirmed/nack-ed.
+>
+>   序号：一个等同于confirmed 或者 nack-ed消息的数字，我们很快将它与发送消息联系在一起。
+>
+>   multiple: 这是一个布尔值，如果为false 只有一个消息被confirmed或者nack-ed,如果为true,所有低于或等于这个序号的数据都confirmed或者nack-ed
+
+#### 7.整合Springboot
+

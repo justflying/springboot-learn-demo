@@ -40,7 +40,12 @@ public class ConstantUtil {
 
     public static final String TOPIC_EXCHANGE_NAME = "boot_topic_exchange_name";
 
-    public static final String TOPIC_QUEUE_NAME = "boot_topic_queue_name";
+    public static final String TOPIC_QUEUE_A = "boot_topic_queue_A";
 
-    public static final String TOPIC_ROUTING_KEY = "boot_topic.#";
+    public static final String TOPIC_QUEUE_B = "boot_topic_queue_B";
+
+    public static final String TOPIC_ROUTING_KEY_A = "boot_topic.#";
+
+    public static final String TOPIC_ROUTING_KEY_B = "boot_topic.*";
+
 }
