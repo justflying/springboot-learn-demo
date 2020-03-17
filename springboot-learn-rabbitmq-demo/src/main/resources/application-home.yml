@@ -7,3 +7,7 @@ spring:
     username: root
     password: myroot
     virtual-host: /vhost_root
+    publisher-confirms: true
+    publisher-returns: true
+    template:
+      mandatory: true # 该参数为true的时候消息如果没路由到相应的队列，会返回给生产者
