@@ -48,4 +48,9 @@ public class ConstantUtil {
 
     public static final String TOPIC_ROUTING_KEY_B = "boot_topic.*";
 
+    public static final String CONFIRM_EXCHANGE_NAME = "boot_confirm_exchange";
+
+    public static final String CONFIRM_QUEUE = "boot_confirm_queue";
+
+    public static final String CONFIRM_ROUTING_KEY = "boot_confirm.#";
 }

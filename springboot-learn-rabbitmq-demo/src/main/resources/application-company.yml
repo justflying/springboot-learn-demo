@@ -4,8 +4,12 @@ spring:
   profiles:
     active: home
   rabbitmq:
-    host: 192.168.211.133
+    host: 120.78.131.194
     port: 5672
-    username: root
-    password: myroot
-    virtual-host: /vhost_root
+    username: user
+    password: password
+    virtual-host: /learn_demo
+    publisher-confirms: true
+    publisher-returns: true
+    template:
+      mandatory: true # 该参数为true的时候消息如果没路由到相应的队列，会返回给生产者
