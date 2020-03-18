@@ -13,13 +13,14 @@ import org.springframework.context.annotation.Configuration;
 public class TopicConfig {
 
     @Bean
-    public Queue queueA(){
+    @Qualifier(value = "topicQueueA")
+    public Queue topicQueueA(){
         return new Queue(ConstantUtil.TOPIC_QUEUE_A);
     }
 
     @Bean
-    @Qualifier(value = "queueB")
-    public Queue queueB(){
+    @Qualifier(value = "topicQueueB")
+    public Queue topicQueueB(){
         return new Queue(ConstantUtil.TOPIC_QUEUE_B);
     }
 
@@ -29,12 +30,14 @@ public class TopicConfig {
     }
 
     @Bean
-    public Binding bindingExchangeA(){
-        return BindingBuilder.bind(queueA()).to(topicExchange()).with(ConstantUtil.TOPIC_ROUTING_KEY_A);
+    @Qualifier(value = "bindingTopicExchangeA")
+    public Binding bindingTopicExchangeA(){
+        return BindingBuilder.bind(topicQueueA()).to(topicExchange()).with(ConstantUtil.TOPIC_ROUTING_KEY_A);
     }
 
     @Bean
-    public Binding bindingExchangeB(){
-        return BindingBuilder.bind(queueB()).to(topicExchange()).with(ConstantUtil.TOPIC_ROUTING_KEY_B);
+    @Qualifier(value = "bindingTopicExchangeB")
+    public Binding bindingTopicExchangeB(){
+        return BindingBuilder.bind(topicQueueB()).to(topicExchange()).with(ConstantUtil.TOPIC_ROUTING_KEY_B);
     }
 }

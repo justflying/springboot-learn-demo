@@ -10,15 +10,15 @@ import java.util.Map;
 /*
  * @Description Please describe the role of this class.
  * @Author wan
- * @Date 2020/3/17 17:23
+ * @Date 2020/3/17 17:41
  * @Version 1.0
  */
 @Component
-@RabbitListener(queues = ConstantUtil.TOPIC_QUEUE_A)
-public class ConsumerOne {
+@RabbitListener(queues = ConstantUtil.TOPIC_QUEUE_B)
+public class TopicConsumerTwo {
 
     @RabbitHandler
     public void process(Map<String,String> map){
-        System.out.println("Topic Queue A:"  + map);
+        System.out.println("Topic Queue B:"  + map);
     }
 }
