@@ -6,8 +6,10 @@ spring:
     port: 6379
     password: myroot
     database: 0
-    jedis:
+    lettuce:
       pool:
-        max-active: 10
-        min-idle: 2
+        max-active: 8
+        min-idle: 0
         max-idle: 8
+        max-wait: 1000 # 连接池最大阻塞等待时间
+      shutdown-timeout: 100 # 关闭超时

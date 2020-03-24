@@ -8,8 +8,8 @@ spring:
     database: 0
     lettuce:
       pool:
-        max-active: 8
-        min-idle: 0
+        max-active: 10
+        min-idle: 2
         max-idle: 8
         max-wait: 1000 # 连接池最大阻塞等待时间
-      shutdown-timeout: 100 # 关闭超时
+      shutdown-timeout: 20000 # 关闭超时
