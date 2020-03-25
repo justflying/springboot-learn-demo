@@ -24,6 +24,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
 
+
     public String getString(String key){
         if(Optional.ofNullable(redisTemplate.hasKey(key)).orElse( false)){
             log.info("从redis中查询出来的数据");
