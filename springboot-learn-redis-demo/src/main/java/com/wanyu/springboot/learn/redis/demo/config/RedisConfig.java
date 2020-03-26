@@ -26,7 +26,7 @@ public class RedisConfig {
 
         StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
 
-        FastJson2JsonRedisSerializer jsonRedisSerializer = new FastJson2JsonRedisSerializer(Object.class);
+        FastJson2JsonRedisSerializer<Object> jsonRedisSerializer = new FastJson2JsonRedisSerializer<>(Object.class);
 
         redisTemplate.setKeySerializer(stringRedisSerializer);
 

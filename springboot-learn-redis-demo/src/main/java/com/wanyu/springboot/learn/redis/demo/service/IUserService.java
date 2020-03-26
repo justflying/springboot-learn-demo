@@ -2,12 +2,15 @@ package com.wanyu.springboot.learn.redis.demo.service;
 
 import com.wanyu.springboot.learn.redis.demo.entity.User;
 
-public interface UserService {
+public interface IUserService {
 
 
-    String getString(String key);
+    String getStringByLettuce(String key);
 
     void expireKeyMinutes(String key,int num);
 
     User selectById(String id);
+
+    String getStringByRedisson(String key);
+
 }

@@ -3,6 +3,8 @@ package com.wanyu.springboot.learn.redis.demo.service.impl;
 import com.wanyu.springboot.learn.redis.demo.entity.User;
 import com.wanyu.springboot.learn.redis.demo.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -24,11 +26,13 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
 
+    @Autowired
+    private RedissonClient redissonClient;
 
     public String getString(String key){
         if(Optional.ofNullable(redisTemplate.hasKey(key)).orElse( false)){
             log.info("从redis中查询出来的数据");
-             return (String) redisTemplate.opsForValue().get(key);
+            return (String) redisTemplate.opsForValue().get(key);
         }else{
             log.info("从数据库中查出来的数据");
             String value = "学习Lettuce";
@@ -54,6 +58,20 @@ public class UserServiceImpl implements UserService {
             User user = new User().setId(id).setName("张三").setAge(23).setCreateTime(LocalDateTime.now());
             redisTemplate.opsForHash().put("user",id, user);
             return user;
+        }
+    }
+
+    @Override
+    public String getStringByRedisson(String key) {
+        RBucket<Object> bucket = redissonClient.getBucket(key);
+        if(bucket.isExists()){
+            log.info("从redis中查询出来的数据");
+            return bucket.get().toString();
+        }else{
+            log.info("从数据库中查出来的数据");
+            String value = "学习Redisson";
+            bucket.set(value);
+            return value;
         }
     }
 }
