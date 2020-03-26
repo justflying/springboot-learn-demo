@@ -8,6 +8,8 @@ import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -28,6 +30,9 @@ public class UserServiceImpl implements IUserService {
 
     @Autowired
     private RedissonClient redissonClient;
+
+    @Autowired
+    private JedisPool jedisPool;
 
     public String getStringByLettuce(String key){
         if(Optional.ofNullable(redisTemplate.hasKey(key)).orElse( false)){
@@ -73,5 +78,27 @@ public class UserServiceImpl implements IUserService {
             bucket.set(value);
             return value;
         }
+    }
+
+    @Override
+    public String getStringByJedis(String key) {
+        Jedis jedis = jedisPool.getResource();
+        try{
+            if (jedis.exists(key)) {
+                log.info("从redis中获取值");
+                return jedis.get(key);
+            }else{
+                // 这里是模拟从数据库拿数据，真实应用的时候请把这段代码替换为操作数据库的代码
+                log.info("从数据库中获取值");
+                String value = "learn jedis";
+                jedis.set(key,value);
+                return value;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        } finally{
+            jedis.close();
+        }
+        return null;
     }
 }

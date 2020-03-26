@@ -13,4 +13,6 @@ public interface IUserService {
 
     String getStringByRedisson(String key);
 
+    String getStringByJedis(String key);
+
 }

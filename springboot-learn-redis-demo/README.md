@@ -1,6 +1,6 @@
 ### SpringBoot 整合 Redis
-#### 1. Redis原始命令学习
-#####  1.1 Redis数据类型介绍
+### 1. Redis原始命令学习
+####  1.1 Redis数据类型介绍
 
 官方介绍：
 
@@ -21,7 +21,7 @@
 > - Streams: append-only collections of map-like entries that provide an abstract log data type. They are covered in depth in the [Introduction to Redis Streams](https://redis.io/topics/streams-intro).
 > - 仅附加提供抽象日志数据类型的类映射项的集合。在Redis Streams 介绍中，他们被深入地讨论了。
 
-##### 1.2 string类型基础命令介绍
+#### 1.2 string类型基础命令介绍
 
 ```shell
 # set name lisi  设置string 类型 key 为name, value 为lisi
@@ -67,7 +67,7 @@ string
 none
 ```
 
-##### 1.3  Redis expires: keys with limited time to live 
+#### 1.3  Redis expires: keys with limited time to live 
 
 > Before continuing with more complex data structures, we need to discuss another feature which works regardless of the value type, and is called **Redis expires**. Basically you can set a timeout for a key, which is a limited time to live. When the time to live elapses, the key is automatically destroyed, exactly as if the user called the [DEL](https://redis.io/commands/del) command with the key.
 >
@@ -100,7 +100,7 @@ OK
 4
 ```
 
-##### 1.4 list类型基础命令介绍
+#### 1.4 list类型基础命令介绍
 
 ```shell
 # rpush key value 从右侧开始存放数据
@@ -148,7 +148,7 @@ OK
 
 ```
 
-##### 1.5 hash(字典)类型基础命令操作
+#### 1.5 hash(字典)类型基础命令操作
 
 ```shell
 # 设置值 hset key field value
@@ -182,7 +182,7 @@ OK
 22
 ```
 
-##### 1.6 set类型基础命令
+#### 1.6 set类型基础命令
 
 ```shell
 # sadd key value [value1]添加元素
@@ -209,7 +209,7 @@ java
 java
 ```
 
-##### 1.7 zset(有序集合)类型基础命令
+#### 1.7 zset(有序集合)类型基础命令
 
  ```shell
 # 添加元素
@@ -243,4 +243,353 @@ think in java
 java cookbook
 java concurrency
  ```
+
+### 2.Springboot整合Jedis
+
+首先针对springboot低版本的与jedis整合
+
+#### 2.1. 先把依赖引入
+
+```xml
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+        </dependency>
+	    <!--非必须引入包，是为了后续偷懒-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+```
+
+#### 2.2 再配置application-jedis.yml 
+
+因为jedis会和后续引入的lettuce冲突这里使用其名字做个配置文件
+
+```yml
+spring:
+  redis:
+    port: 6379
+    password: myroot
+    host: 192.168.211.133
+    jedis:
+      pool:
+        max-active: 2
+        min-idle: 1
+        max-idle: 2
+    timeout: 2000
+```
+
+#### 2.3 开始上java代码 JedisConfig.java
+
+```java
+package com.wanyu.springboot.learn.redis.demo.config;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
+
+@Configuration
+@Slf4j
+public class JedisConfig {
+
+    @Value("${spring.redis.host}")
+    private String host;
+
+    @Value("${spring.redis.port}")
+    private int port;
+
+    @Value("${spring.redis.password}")
+    private String password;
+
+    @Value("${spring.redis.timeout}")
+    private int timeout;
+
+    @Value("${spring.redis.jedis.pool.max-active}")
+    private int maxActive;
+
+    @Value("${spring.redis.jedis.pool.min-idle}")
+    private int minIdle;
+
+    @Value("${spring.redis.jedis.pool.max-idle}")
+    private int maxIdle;
+
+    @Bean
+    public JedisPoolConfig jedisPoolConfig(){
+        JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
+        jedisPoolConfig.setMaxIdle(maxIdle);
+        jedisPoolConfig.setMinIdle(minIdle);
+        jedisPoolConfig.setMaxTotal(maxActive);
+        return jedisPoolConfig;
+    }
+
+    @Bean
+    public JedisPool jedisPool(){
+        log.info("JedisPool连接成功：端口：{}，主机：{}",port,host);
+        return new JedisPool(jedisPoolConfig(),host,port,timeout,password);
+    }
+}
+
+```
+
+UserController.java 名字可以随意
+
+```java
+package com.wanyu.springboot.learn.redis.demo.controller;
+
+import com.wanyu.springboot.learn.redis.demo.service.IUserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping(value = "/redis")
+public class UserController {
+
+
+    @Autowired
+    private IUserService userService;
+
+
+    @GetMapping(value = "/jedis/{key}")
+    public String getStringValue(@PathVariable("key") String key){
+        return userService.getStringByJedis(key);
+    }
+
+}
+```
+
+IUserService.java
+
+```java
+package com.wanyu.springboot.learn.redis.demo.service;
+
+public interface IUserService {
+
+    String getStringByJedis(String key);
+}
+```
+
+UserServiceImpl.java
+
+```java
+package com.wanyu.springboot.learn.redis.demo.service.impl;
+
+import com.wanyu.springboot.learn.redis.demo.entity.User;
+import com.wanyu.springboot.learn.redis.demo.service.IUserService;
+import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
+@Service
+@Slf4j
+public class UserServiceImpl implements IUserService {
+
+
+    @Autowired
+    private JedisPool jedisPool;
+
+
+    @Override
+    public String getStringValueByJedis(String key) {
+        Jedis jedis = jedisPool.getResource();
+        try{
+            if (jedis.exists(key)) {
+                log.info("从redis中获取值");
+                return jedis.get(key);
+            }else{
+                // 这里是模拟从数据库拿数据，真实应用的时候请把这段代码替换为操作数据库的代码
+                log.info("从数据库中获取值");
+                String value = "learn jedis";
+                jedis.set(key,value);
+                return value;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        } finally{
+            jedis.close();
+        }
+        return null;
+    }
+}
+
+```
+
+然后启动的时候，spring.profiles.active 设置为jedis ,启动成功后浏览器访问localhost:8080/redis/jedis/name就可以完成一个小的redis调用了，这里因为不是主要讲Jedis客户端所以不做太详细的配置，上面的代码中有个问题就是jedis需要代码中关闭（不知道是不是我配置的有问题，如果有更好的办法请告诉我，issue里面提示，谢谢）
+
+### 3.Springboot整合lettuce
+
+#### 3.1 先引入依赖
+
+```xml
+        <!-- springboot 2.x 以后默认的redis操作工具 所以只需要引入这个-->
+	    <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+```
+
+#### 3.2 引入配置文件
+
+```yml
+spring:
+  redis:
+    host: 192.168.1.4
+    port: 6379
+    password: myroot
+    database: 0
+    lettuce:
+      pool:
+        max-active: 8
+        min-idle: 0
+        max-idle: 8
+        max-wait: 1000 # 连接池最大阻塞等待时间
+      shutdown-timeout: 100 # 关闭超时
+```
+
+#### 3.3 开始整java代码
+
+RedisConfig.java
+
+```java
+package com.wanyu.springboot.learn.redis.demo.config;
+
+import com.wanyu.springboot.learn.redis.demo.util.FastJson2JsonRedisSerializer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+
+@Configuration
+public class RedisConfig {
+
+
+    @Bean
+    public RedisTemplate<String,Object> redisTemplate(RedisConnectionFactory connectionFactory){
+
+        RedisTemplate<String,Object> redisTemplate = new RedisTemplate<>();
+
+        redisTemplate.setConnectionFactory(connectionFactory);
+
+        StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
+	    // 这里我使用的是fastjson来做序列化与反序列化，没有使用默认的 jackson2
+        FastJson2JsonRedisSerializer<Object> jsonRedisSerializer = new FastJson2JsonRedisSerializer<>(Object.class);
+
+        redisTemplate.setKeySerializer(stringRedisSerializer);
+
+        redisTemplate.setValueSerializer(jsonRedisSerializer);
+
+        redisTemplate.setHashKeySerializer(stringRedisSerializer);
+
+        redisTemplate.setHashValueSerializer(jsonRedisSerializer);
+        redisTemplate.afterPropertiesSet();
+        return redisTemplate;
+    }
+}
+```
+
+```java
+package com.wanyu.springboot.learn.redis.demo.util;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.SerializationException;
+
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
+
+@Slf4j
+public class FastJson2JsonRedisSerializer<T> implements RedisSerializer<T> {
+
+
+    private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+
+    private Class<T> clazz;
+
+    static {
+        ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
+    }
+    public FastJson2JsonRedisSerializer(Class<T> clazz){
+        super();
+        this.clazz = clazz;
+    }
+
+    @Override
+    public byte[] serialize(T t) throws SerializationException {
+        if(t == null){
+            return new byte[0];
+        }
+        return JSON.toJSONString(t, SerializerFeature.WriteClassName).getBytes(DEFAULT_CHARSET);
+    }
+
+    @Override
+    public T deserialize(byte[] bytes) throws SerializationException {
+        if (bytes == null || bytes.length <= 0) {
+            return null;
+        }
+        String str = new String(bytes, DEFAULT_CHARSET);
+        return JSON.parseObject(str, clazz);
+    }
+}
+```
+
+UserController.java
+
+```java
+package com.wanyu.springboot.learn.redis.demo.controller;
+
+import com.wanyu.springboot.learn.redis.demo.service.IUserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+
+@RestController
+@RequestMapping(value = "/redis")
+public class UserController {
+
+    @Autowired
+    private IUserService userService;
+
+    @GetMapping(value = "/lettuce/{key}")
+    public String testLettuce(@PathVariable("key") String key){
+        return userService.getStringByLettuce(key);
+    }
+}
+```
+
+
+
+
+
+
+
+
 

@@ -18,16 +18,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     @Autowired
-    private IUserService IUserService;
+    private IUserService userService;
 
     @GetMapping(value = "/lettuce/{key}")
     public String testLettuce(@PathVariable("key") String key){
-        return IUserService.getStringByLettuce(key);
+        return userService.getStringByLettuce(key);
     }
 
 
     @GetMapping(value = "/redisson/{key}")
     public String testRedisson(@PathVariable("key") String key){
-        return IUserService.getStringByRedisson(key);
+        return userService.getStringByRedisson(key);
+    }
+
+
+    @GetMapping(value = "/jedis/{key}")
+    public String getStringValue(@PathVariable("key") String key){
+        return userService.getStringByJedis(key);
     }
 }
