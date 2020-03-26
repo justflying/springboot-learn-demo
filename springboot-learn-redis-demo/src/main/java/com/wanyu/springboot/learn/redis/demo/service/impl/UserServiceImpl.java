@@ -1,7 +1,7 @@
 package com.wanyu.springboot.learn.redis.demo.service.impl;
 
 import com.wanyu.springboot.learn.redis.demo.entity.User;
-import com.wanyu.springboot.learn.redis.demo.service.UserService;
+import com.wanyu.springboot.learn.redis.demo.service.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements IUserService {
 
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private RedissonClient redissonClient;
 
-    public String getString(String key){
+    public String getStringByLettuce(String key){
         if(Optional.ofNullable(redisTemplate.hasKey(key)).orElse( false)){
             log.info("从redis中查询出来的数据");
             return (String) redisTemplate.opsForValue().get(key);
