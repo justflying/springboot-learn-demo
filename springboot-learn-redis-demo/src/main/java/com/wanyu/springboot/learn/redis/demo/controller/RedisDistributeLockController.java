@@ -1,6 +1,8 @@
 package com.wanyu.springboot.learn.redis.demo.controller;
 
-import com.wanyu.springboot.learn.redis.demo.util.LettuceDistributeLock;
+import com.wanyu.springboot.learn.redis.demo.util.RedisLock;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,19 +21,57 @@ public class RedisDistributeLockController {
 
 
     @Autowired
-    private LettuceDistributeLock redisLock;
+    private RedisLock lettuceDistributeLock;
 
-    @RequestMapping(value = "/redis-lock")
-    public String redisLock(){
+    @Autowired
+    private RedisLock jedisDistributeLock;
+
+    @Autowired
+    private RedissonClient redissonClient;
+
+    @RequestMapping(value = "/lettuce-lock")
+    public String lettuceLock(){
         String lockKey = "lockKey";
         String lockValue = "lockValue";
-        boolean lockResult = redisLock.tryGetDistributeLock(lockKey, lockValue,
+        boolean lockResult = lettuceDistributeLock.tryGetDistributeLock(lockKey, lockValue,
                 2, TimeUnit.MINUTES);
         if(lockResult){
-            redisLock.releaseDistributeLock(lockKey,lockValue);
-            System.out.println("设值成功");
+            System.out.println("开始执行实际业务");
+            if(lettuceDistributeLock.releaseDistributeLock(lockKey, lockValue)){
+                System.out.println("执行完业务以后，释放锁");
+            }
             return "success";
         }
         return "over";
     }
+
+    @RequestMapping(value = "/jedis-lock")
+    public String jedisLock(){
+        String lockKey = "lockKey";
+        String lockValue = "lockValue";
+        boolean lockResult = jedisDistributeLock.tryGetDistributeLock(lockKey, lockValue,
+                2, TimeUnit.MINUTES);
+        if(lockResult){
+            System.out.println("开始执行实际业务");
+            if(jedisDistributeLock.releaseDistributeLock(lockKey, lockValue)){
+                System.out.println("执行完业务，释放锁");
+            }
+            return "success";
+        }
+        return "over";
+    }
+
+    @RequestMapping(value = "/redisson-lock")
+    public String redissonLock(){
+        String lockKey = "lockKey";
+        RLock lock = redissonClient.getLock(lockKey);
+        try{
+            lock.lock();
+            System.out.println("开始执行实际业务");
+        }finally {
+            lock.unlock();
+        }
+        return "over";
+    }
+
 }

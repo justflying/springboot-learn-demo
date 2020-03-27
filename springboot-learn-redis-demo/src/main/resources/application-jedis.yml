@@ -1,10 +1,12 @@
 server:
-  port: 18081
+  port: 18080
 spring:
   redis:
-    host: 192.168.1.4
+    #host: 192.168.1.4
+    #password: myroot
+    host: 120.78.131.194
+    password: 202330Re
     port: 6379
-    password: myroot
     database: 0
     jedis:
       pool:

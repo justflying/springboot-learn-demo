@@ -35,7 +35,7 @@
         </dependency>
 
 
-        <!--引入 redission jar包-->
+        <!--引入 redisson jar包-->
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson</artifactId>

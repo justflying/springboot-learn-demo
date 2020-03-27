@@ -246,7 +246,7 @@ java concurrency
 
 ### 2.Springboot整合Jedis
 
-首先针对springboot低版本的与jedis整合
+首先针对springboot低版本的与jedis整合,如果想使用，建议建立三个子模块，然后进行分别测试，我在这里只用了一个模块，主要原因是，我自己写的三个整合，我知道该去注释哪些代码，让三个启动以后平安无事的运行我想验证的东西，如果对这三种不了解，不建议直接运行这个模块，毕竟刚上来就各种排错，积极性就会被打击，建立三个模块，互不干扰，按照我下面给的步骤，一个一个的引入，基本不会有什么问题。
 
 #### 2.1. 先把依赖引入
 
@@ -387,18 +387,10 @@ UserServiceImpl.java
 ```java
 package com.wanyu.springboot.learn.redis.demo.service.impl;
 
-import com.wanyu.springboot.learn.redis.demo.entity.User;
 import com.wanyu.springboot.learn.redis.demo.service.IUserService;
 import lombok.extern.slf4j.Slf4j;
-import org.redisson.api.RBucket;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -436,6 +428,113 @@ public class UserServiceImpl implements IUserService {
 
 然后启动的时候，spring.profiles.active 设置为jedis ,启动成功后浏览器访问localhost:8080/redis/jedis/name就可以完成一个小的redis调用了，这里因为不是主要讲Jedis客户端所以不做太详细的配置，上面的代码中有个问题就是jedis需要代码中关闭（不知道是不是我配置的有问题，如果有更好的办法请告诉我，issue里面提示，谢谢）
 
+#### 2.4 基于jedis的分布式锁
+
+RedisLock.java
+
+```java
+package com.wanyu.springboot.learn.redis.demo.util;
+
+import java.util.concurrent.TimeUnit;
+
+public interface RedisLock {
+
+
+    boolean tryGetDistributeLock(String lockKey,String lockValue,
+                                 Integer expireTime, TimeUnit timeUnit);
+
+    boolean releaseDistributeLock(String lockKey,String lockValue);
+}
+```
+
+JedisDistributeLock.java
+
+```java
+package com.wanyu.springboot.learn.redis.demo.util;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.params.SetParams;
+
+import java.util.Collections;
+import java.util.concurrent.TimeUnit;
+
+@Component
+public class JedisDistributeLock implements  RedisLock{
+
+
+    @Autowired
+    private JedisPool jedisPool;
+
+    @Override
+    public boolean tryGetDistributeLock(String lockKey, String lockValue,
+                                        Integer expireTime, TimeUnit timeUnit) {
+        Jedis jedis = jedisPool.getResource();
+        SetParams setParams = new SetParams();
+        setParams.nx().px(timeUnit.toMillis(expireTime));
+        boolean ok = "OK".equals(jedis.set(lockKey, lockValue, setParams));
+        jedis.close();
+        return ok;
+    }
+
+
+    @Override
+    public boolean releaseDistributeLock(String lockKey, String lockValue) {
+        String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+        Jedis jedis = jedisPool.getResource();
+        Object eval = jedis.eval(script, Collections.singletonList(lockKey), Collections.singletonList(lockValue));
+        jedis.close();
+        return eval.equals(1);
+    }
+}
+
+```
+
+RedisDistributeLockController.java
+
+```java
+package com.wanyu.springboot.learn.redis.demo.controller;
+
+import com.wanyu.springboot.learn.redis.demo.util.RedisLock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.concurrent.TimeUnit;
+
+@RestController
+@RequestMapping(value = "/test")
+public class RedisDistributeLockController {
+
+    @Autowired
+    private RedisLock jedisDistributeLock;
+
+    @RequestMapping(value = "/jedis-lock")
+    public String jedisLock(){
+        String lockKey = "lockKey";
+        String lockValue = "lockValue";
+        boolean lockResult = jedisDistributeLock.tryGetDistributeLock(lockKey, lockValue,
+                2, TimeUnit.MINUTES);
+        if(lockResult){
+            System.out.println("开始执行实际业务");
+            if(jedisDistributeLock.releaseDistributeLock(lockKey, lockValue)){
+                System.out.println("执行完业务，释放锁");
+            }
+            return "success";
+        }
+        return "over";
+    }
+
+}
+
+```
+
+
+
+
+
 ### 3.Springboot整合lettuce
 
 #### 3.1 先引入依赖
@@ -466,7 +565,7 @@ spring:
       shutdown-timeout: 100 # 关闭超时
 ```
 
-#### 3.3 开始整java代码
+#### 3.3 开始上java代码
 
 RedisConfig.java
 
@@ -585,7 +684,347 @@ public class UserController {
 }
 ```
 
+IUserService.java
 
+```java
+package com.wanyu.springboot.learn.redis.demo.service;
+
+public interface IUserService {
+
+    String getStringByLettuce(String key);
+}
+```
+
+UserServiceImpl.java
+
+```java
+package com.wanyu.springboot.learn.redis.demo.service.impl;
+
+import com.wanyu.springboot.learn.redis.demo.entity.User;
+import com.wanyu.springboot.learn.redis.demo.service.IUserService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+import java.util.Optional;
+@Slf4j
+@Service
+public class UserServiceImpl implements IUserService {
+	
+    	@Autowired
+   		private RedisTemplate<String,Object> redisTemplate;
+    	
+    	@Override
+	    public String getStringByLettuce(String key){
+        if(Optional.ofNullable(redisTemplate.hasKey(key)).orElse( false)){
+            log.info("从redis中查询出来的数据");
+            return (String) redisTemplate.opsForValue().get(key);
+        }else{
+            log.info("从数据库中查出来的数据");
+            String value = "学习Lettuce";
+            redisTemplate.opsForValue().set(key,value);
+            return value;
+        }
+    }
+}
+```
+
+#### 3.4 基于lettuce的分布式锁
+
+RedisLock.java
+
+```java
+package com.wanyu.springboot.learn.redis.demo.util;
+
+import java.util.concurrent.TimeUnit;
+
+public interface RedisLock {
+
+
+    boolean tryGetDistributeLock(String lockKey,String lockValue,
+                                 Integer expireTime, TimeUnit timeUnit);
+
+    boolean releaseDistributeLock(String lockKey,String lockValue);
+}
+```
+
+LettuceDistributeLock.java
+
+```java
+package com.wanyu.springboot.learn.redis.demo.util;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.data.redis.core.script.RedisScript;
+import org.springframework.stereotype.Component;
+
+import java.util.Collections;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
+@Component
+public class LettuceDistributeLock implements  RedisLock {
+
+
+    @Autowired
+    private RedisTemplate<String,Object> redisTemplate;
+
+    /**
+     * 加锁 set key value nx ex
+     * @param lockKey 锁键
+     * @param lockValue 锁值
+     * @param expireTime 过期时间
+     * @param timeUnit 实践单位
+     * @return boolean 设置成功为true,设置失败为false
+     */
+    @Override
+    public  boolean tryGetDistributeLock(String lockKey,
+                                        String lockValue, Integer expireTime, TimeUnit timeUnit){
+        return Optional.ofNullable(
+                            redisTemplate.opsForValue().setIfAbsent(lockKey,lockValue,expireTime,timeUnit))
+                       .orElse(false);
+    }
+
+    /**
+     *  释放锁
+     * @param lockKey 锁键
+     * @return boolean true 释放锁成功，false 释放锁失败
+     */
+    @Override
+    public  boolean releaseDistributeLock(String lockKey,String lockValue){
+
+        String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+
+        RedisScript<Long> redisScript = new DefaultRedisScript<>(script, Long.class);
+
+        return Optional.ofNullable(redisTemplate.execute(redisScript,
+                Collections.singletonList(lockKey), lockValue)).orElse(0L) > 0;
+    }
+}
+
+```
+
+RedisDistributeLockController.java
+
+```java
+package com.wanyu.springboot.learn.redis.demo.controller;
+
+import com.wanyu.springboot.learn.redis.demo.util.RedisLock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.concurrent.TimeUnit;
+
+@RestController
+@RequestMapping(value = "/test")
+public class RedisDistributeLockController {
+
+
+    @Autowired
+    private RedisLock lettuceDistributeLock;
+
+
+    @RequestMapping(value = "/lettuce-lock")
+    public String lettuceLock(){
+        String lockKey = "lockKey";
+        String lockValue = "lockValue";
+        boolean lockResult = lettuceDistributeLock.tryGetDistributeLock(lockKey, lockValue,
+                2, TimeUnit.MINUTES);
+        if(lockResult){
+            System.out.println("开始执行实际业务");
+            if(lettuceDistributeLock.releaseDistributeLock(lockKey, lockValue)){
+                System.out.println("执行完业务以后，释放锁");
+            }
+            return "success";
+        }
+        return "over";
+    }
+}
+```
+
+
+
+### 4.Springboot整合redisson
+
+#### 4.1 引入依赖
+
+```xml
+        <!--引入 redisson jar包-->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>3.12.3</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+        </dependency>
+```
+
+#### 4.2 引入配置文件
+
+这个可以和lettuce的共用这部分，就不写个application-redisson.yml了
+
+```yml
+spring:
+  redis:
+    host: 192.168.1.4
+    port: 6379
+    password: myroot
+    database: 0
+```
+
+#### 4.3 java代码部分
+
+RedissonConfig.java
+
+```java
+package com.wanyu.springboot.learn.redis.demo.config;
+
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class RedissonConfig {
+
+    @Value("${spring.redis.host}")
+    private String host;
+
+    @Value("${spring.redis.port}")
+    private int port;
+
+    @Value("${spring.redis.password}")
+    private String password;
+
+    @Value("${spring.redis.database}")
+    private int database;
+
+    @Bean
+    public RedissonClient redissonClient(){
+        Config config = new Config();
+        String redisUrl  = String.format("redis://%s:%s",host,port);
+        // 演示单机模式
+        config.useSingleServer().setAddress(redisUrl).setPassword(password);
+        config.useSingleServer().setDatabase(database);
+        return Redisson.create(config);
+    }
+}
+```
+
+UserController.java
+
+```java
+package com.wanyu.springboot.learn.redis.demo.controller;
+
+import com.wanyu.springboot.learn.redis.demo.service.IUserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping(value = "/redis")
+public class UserController {
+
+    @Autowired
+    private IUserService userService;
+    @GetMapping(value = "/redisson/{key}")
+    public String testRedisson(@PathVariable("key") String key){
+        return userService.getStringByRedisson(key);
+    }
+
+}
+```
+
+IUserService.java
+
+```java
+package com.wanyu.springboot.learn.redis.demo.service;
+
+public interface IUserService {
+
+    String getStringByRedisson(String key);
+
+}
+```
+
+UserServiceImpl.java
+
+```java
+package com.wanyu.springboot.learn.redis.demo.service.impl;
+
+import com.wanyu.springboot.learn.redis.demo.service.IUserService;
+import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+@Slf4j
+@Service
+public class UserServiceImpl implements IUserService {
+    @Autowired
+    private RedissonClient redissonClient;
+    
+    @Override
+    public String getStringByRedisson(String key) {
+        RBucket<Object> bucket = redissonClient.getBucket(key);
+        if(bucket.isExists()){
+            log.info("从redis中查询出来的数据");
+            return bucket.get().toString();
+        }else{
+            log.info("从数据库中查出来的数据");
+            String value = "学习Redisson";
+            bucket.set(value);
+            return value;
+        }
+    }
+}
+```
+
+#### 4.4  基于redisson的分布式锁
+
+```java
+package com.wanyu.springboot.learn.redis.demo.controller;
+
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+
+@RestController
+@RequestMapping(value = "/test")
+public class RedisDistributeLockController {
+
+    @Autowired
+    private RedissonClient redissonClient;
+
+    @RequestMapping(value = "/redisson-lock")
+    public String redissonLock(){
+        String lockKey = "lockKey";
+        RLock lock = redissonClient.getLock(lockKey);
+        try{
+            lock.lock();
+            System.out.println("开始执行实际业务");
+        }finally {
+            lock.unlock();
+        }
+        return "over";
+    }
+
+}
+```
+
+### 5.关于三种客户端的使用分析
 
 
 
