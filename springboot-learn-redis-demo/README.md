@@ -1026,6 +1026,18 @@ public class RedisDistributeLockController {
 
 ### 5.关于三种客户端的使用分析
 
+jedis: jedis线程不安全，其实不推荐使用这个，只因为很多项目使用的是老版本springboot,所以无奈的使用这个。
+
+lettuce:线程安全，推荐使用这个
+
+redisson：自带很多优秀的功能，对于分支锁，支持redlock
+
+关于分布式锁,单机版的时候，上面实现的三种锁，使用起来，基本上没什么大事，一旦是主从架构，就会导致一个问题出现,如果刚抢到锁 ，Master突然挂掉，还没来得及同步到slave,然后slave上面没有这个锁，就会被其他的线程抢到，这就会导致锁失效，高并发下，会出现这种情况，造成大量的问题，所以关于这个问题，redis作者在在redis官网推荐了redlock来实现，但是redlock并不是完美的。
+
+在使用redlock的之前推荐看这篇文章：
+
+[怎样做可靠的分布式锁，Redlock 真的可行么？](https://blog.csdn.net/chen_kkw/article/details/81433470)
+
 
 
 
