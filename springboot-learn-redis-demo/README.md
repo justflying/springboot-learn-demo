@@ -844,6 +844,36 @@ public class RedisDistributeLockController {
 }
 ```
 
+#### 3.5 整合redis cluster
+
+只需要修改yml,其余无需修改
+
+```yml
+server:
+  port: 18080
+spring:
+  redis:
+    password: myroot
+    database: 0
+    cluster:
+      nodes:
+        - 192.168.1.4:7000
+        - 192.168.1.4:7001
+        - 192.168.1.4:7002
+        - 192.168.1.4:7003
+        - 192.168.1.4:7004
+        - 192.168.1.4:7005
+      max-redirects: 3
+    lettuce:
+      pool:
+        max-active: 8
+        min-idle: 0
+        max-idle: 8
+        max-wait: 1000 # 连接池最大阻塞等待时间
+      shutdown-timeout: 100 # 关闭超时
+    timeout: 6000ms
+```
+
 
 
 ### 4.Springboot整合redisson
@@ -1037,8 +1067,6 @@ redisson：自带很多优秀的功能，对于分支锁，支持redlock
 在使用redlock的之前推荐看这篇文章：
 
 [怎样做可靠的分布式锁，Redlock 真的可行么？](https://blog.csdn.net/chen_kkw/article/details/81433470)
-
-
 
 
 
