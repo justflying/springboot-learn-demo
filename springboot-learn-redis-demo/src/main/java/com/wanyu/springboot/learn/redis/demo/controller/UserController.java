@@ -33,7 +33,7 @@ public class UserController {
 
 
     @GetMapping(value = "/jedis/{key}")
-    public String getStringValue(@PathVariable("key") String key){
+    public String testJedis(@PathVariable("key") String key){
         return userService.getStringByJedis(key);
     }
 }
