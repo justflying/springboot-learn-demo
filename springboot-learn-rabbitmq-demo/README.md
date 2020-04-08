@@ -22,20 +22,20 @@
 ​	channel.basicAck(delivery.getEnvelope().getDeliveryTag(),false);
 
 ```java
- DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-            String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
-            System.out.println(" ConsumerOne Received: " + message);
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }finally {
-                System.out.println(" ConsumerOne is Done ");
-                // 应答消费完毕
-                channel.basicAck(delivery.getEnvelope().getDeliveryTag(),false);
-            }
-        };
-channel.basicConsume(QUEUE_NAME, false, deliverCallback, consumerTag -> {});
+     DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+                String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
+                System.out.println(" ConsumerOne Received: " + message);
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }finally {
+                    System.out.println(" ConsumerOne is Done ");
+                    // 应答消费完毕
+                    channel.basicAck(delivery.getEnvelope().getDeliveryTag(),false);
+                }
+            };
+    channel.basicConsume(QUEUE_NAME, false, deliverCallback, consumerTag -> {});
 ```
 
 公平模式之后，测试发现，睡眠时间短的消费者，消费的消息多，睡眠时间长的消费者，消费的消息少。
@@ -54,7 +54,7 @@ channel.basicConsume(QUEUE_NAME, false, deliverCallback, consumerTag -> {});
 >
 > It's a common mistake to miss the **basicAck**. It's an easy error, but the consequences are serious. Messages will be redelivered when your client quits (which may look like random redelivery), but RabbitMQ will eat more and more memory as it won't be able to release any unacked messages.
 >
-> 丢失basicAck是很常见的错误，很容易出错，但是结果是严重的，当你的客户端停止消息将会被重新分发（看起来像是随机分发），但是RabbitMQ会因为无法释放任何unacked的消息占用越来越多内存。
+> 丢失basicAck是很常见的错误，很容易出错，但是结果是严重的，当你的客户端关闭后消息将会被重新分发（看起来像是随机分发），但是RabbitMQ会因为无法释放任何unacked的消息占用越来越多内存。
 >
 > In order to debug this kind of mistake you can use rabbitmqctl to print the messages_unacknowledged field:
 >

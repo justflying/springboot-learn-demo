@@ -2,4 +2,4 @@
 #### 1. elasticsearch
 #### 2. mybatis-plus 
 #### 3. rabbitmq
-
+#### 4. redis
