@@ -81,7 +81,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
     }
 
     /**
-     * @CachePut 既调用方法，有更新缓存数据。
+     * 注解@CachePut 既调用方法，有更新缓存数据。
      * 运行时机：
      *      1.先调用目标方法
      *      2.将目标方法的结果缓存起来
@@ -90,7 +90,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
      *      可以分析，毕竟我们自定义的key是根据类名+方法名+[参数]生成的，这里我们并没有办法去获取和上面
      *      一样的key,所以我们必须注释掉上面的key自定义生成器
      *
-     * @Caching 定义多功能缓存，
+     * 注解@Caching 定义多功能缓存，
      *     适用场景: 当我们更新一个Employee员工的时候，必然会导致list缓存失效
      *              这个时候，就需要清空list的缓存
      * @param employee 员工信息
@@ -113,7 +113,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
     }
 
     /**
-     * @CacheEvict 删除某个缓存，根据key
+     * 注解@CacheEvict 删除某个缓存，根据key
      *  key：指定要删除缓存的key
      *  allEntries:是否删除所有缓存，慎用
      *  beforeInvocation: 是否在方法执行之前，清除所有缓存，用在方法出错，
@@ -135,7 +135,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
     /**
      * 这里缓存所有
-     * @return
+     * @return List<Employee>
      */
     @Override
     @Cacheable(cacheNames = "emp",key="#root.targetClass")
