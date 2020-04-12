@@ -5,13 +5,17 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("employee")
-public class Employee extends Model<Employee> {
+@NoArgsConstructor
+public class Employee extends Model<Employee> implements Serializable {
 
     @TableId
     private Long id;

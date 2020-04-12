@@ -11,8 +11,13 @@ import org.springframework.web.bind.annotation.*;
 public class EmployeeController {
 
 
+
+    private IEmployeeService employeeService;
+
     @Autowired
-    IEmployeeService employeeService;
+    public EmployeeController(IEmployeeService employeeService){
+        this.employeeService = employeeService;
+    }
 
     @GetMapping(value = "/emp/{id}")
     public Employee getEmpById(@PathVariable("id")Long id){

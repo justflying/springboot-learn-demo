@@ -8,7 +8,25 @@ spring:
       idle-timeout: 60000
       maximum-pool-size: 20
       minimum-idle: 2
-
+  redis:
+    password: myroot
+    cluster:
+      nodes:
+        - 192.168.1.4:7000
+        - 192.168.1.4:7001
+        - 192.168.1.4:7002
+        - 192.168.1.4:7003
+        - 192.168.1.4:7004
+        - 192.168.1.4:7005
+      max-redirects: 3
+    lettuce:
+      pool:
+        max-active: 8
+        min-idle: 0
+        max-idle: 8
+        max-wait: 1000 # 连接池最大阻塞等待时间
+      shutdown-timeout: 100 # 关闭超时
+    timeout: 2000
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
