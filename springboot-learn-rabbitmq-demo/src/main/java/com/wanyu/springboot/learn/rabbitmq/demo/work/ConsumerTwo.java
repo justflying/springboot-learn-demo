@@ -18,7 +18,6 @@ public class ConsumerTwo {
         // 2. 获取channel
         Channel channel = connection.createChannel();
 
-        // 3. 创建一个Queue  这里并没有把我们要做测试的消息持久化（存到磁盘）
         channel.queueDeclare(QUEUE_NAME,false,false,false,null);
 
         System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
