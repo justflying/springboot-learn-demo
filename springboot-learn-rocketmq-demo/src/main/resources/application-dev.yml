@@ -1,0 +1,5 @@
+rocketmq:
+  name-server: 192.168.3.10:9876;192.168.3.11:9876;192.168.3.12:9876
+  # 生产者组名
+  producer:
+    group: my-group
