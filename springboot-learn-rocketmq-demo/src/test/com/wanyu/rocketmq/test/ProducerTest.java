@@ -1,6 +1,6 @@
 package com.wanyu.rocketmq.test;
 
-import com.wanyu.springboot.learn.rocketmq.demo.RocketMQDemoApplication;
+import com.wanyu.rocketmq.demo.RocketMQDemoApplication;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,4 +25,5 @@ public class ProducerTest {
     public void testSendMessage(){
         rocketMQTemplate.convertAndSend("springboot-rocketmq","Hello Springboot RocketMQ");
     }
+
 }
