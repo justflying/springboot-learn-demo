@@ -4,3 +4,4 @@
 #### 3. Rabbitmq
 #### 4. Redis
 #### 5. RocketMQ
+#### 6. Kafka
