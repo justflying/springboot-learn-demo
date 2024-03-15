@@ -25,8 +25,8 @@ public class Producer {
     public String producer(String topic,String message){
         ListenableFuture<SendResult<String, String>> send = kafkaTemplate.send(topic, message);
         try {
-            SendResult<String, String> stringStringSendResult = send.get();
-            return stringStringSendResult.toString();
+            SendResult<String, String> result = send.get();
+            return result.toString();
         } catch (Exception e) {
             e.printStackTrace();
         }finally {

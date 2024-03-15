@@ -1,6 +1,6 @@
 spring:
   kafka:
-    bootstrap-servers: 192.168.45.100:9092,192.168.45.101:9092,192.168.45.102:9092
+    bootstrap-servers: 127.0.0.1:9092
     producer:
       # 生产者序列化方式
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -23,7 +23,7 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       # 消费者消费时，如果没有消费记录，指定从哪里开始消费
-      auto-offset-reset: earliest
+      auto-offset-reset: lastest
     listener:
       # 在监听器容器中运行的线程数
       concurrency: 5

@@ -22,6 +22,6 @@ public class KafkaController {
 
     @GetMapping(value = "/to-kafka/{message}")
     public String messageToKafka(@PathVariable String message){
-        return producer.producer("springboot-kafka",message);
+        return producer.producer("test",message);
     }
 }
