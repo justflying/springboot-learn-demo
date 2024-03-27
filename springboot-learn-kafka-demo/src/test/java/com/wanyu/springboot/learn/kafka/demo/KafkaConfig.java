@@ -20,7 +20,7 @@ public class KafkaConfig {
 
     public static final String TOPIC = "test";
 
-    private static  final String BROKER_LIST = "127.0.0.1:9092";
+    public static  final String BROKER_LIST = "127.0.0.1:9092";
     private static  final String GROUP_ID = "group.demo";
     private static  final String CLIENT_ID = "consumer.client.id.demo";
 
@@ -47,6 +47,17 @@ public class KafkaConfig {
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BROKER_LIST);
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID);
         properties.put(ConsumerConfig.CLIENT_ID_CONFIG, CLIENT_ID);
+        return properties;
+    }
+
+    public static Properties consumerCompleteConfig(){
+        Properties properties = new Properties();
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,StringDeserializer.class.getName());
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BROKER_LIST);
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID);
+        properties.put(ConsumerConfig.CLIENT_ID_CONFIG, CLIENT_ID);
+        properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         return properties;
     }
 }
