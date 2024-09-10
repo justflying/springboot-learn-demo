@@ -1,6 +1,6 @@
-package com.wanyu.springboot.learn.kafka.demo.controller;
+package com.wanyu.learn.kafka.demo.controller;
 
-import com.wanyu.springboot.learn.kafka.demo.producer.Producer;
+import com.wanyu.learn.kafka.demo.producer.Producer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

@@ -1,4 +1,4 @@
-package com.wanyu.springboot.learn.kafka.demo;
+package com.wanyu.learn.kafka.demo;
 
 import org.springframework.boot.test.context.SpringBootTest;
 

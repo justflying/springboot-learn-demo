@@ -6,8 +6,11 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -54,5 +57,14 @@ public class LettuceDistributeLock implements  RedisLock {
 
         return Optional.ofNullable(redisTemplate.execute(redisScript,
                 Collections.singletonList(lockKey), lockValue)).orElse(0L) > 0;
+    }
+
+    @Override
+    public ScheduledFuture<?> renewLock(String lockKey, String lockValue, Integer expireTime, TimeUnit timeUnit, ScheduledExecutorService scheduledExecutorService) {
+        String script = "if redis.call('get',KEYS[1]) == ARGV[1] then return redis.call('expire',KEYS[1], tonumber(ARGV[2])) else return 0 end";
+        RedisScript<Long> redisScript = new DefaultRedisScript<>(script, Long.class);
+        long round = Math.round(expireTime / 2);
+        return scheduledExecutorService.scheduleAtFixedRate(() ->
+            redisTemplate.execute(redisScript, Collections.singletonList(lockKey), lockKey,expireTime), round, round, timeUnit);
     }
 }

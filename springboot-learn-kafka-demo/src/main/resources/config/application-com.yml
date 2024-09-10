@@ -27,7 +27,7 @@ spring:
     listener:
       # 在监听器容器中运行的线程数
       concurrency: 5
-      # listener 负责ack,每条用一次，就立即commit
+      # listener 负责ack,每调用一次，就立即commit
       ack-mode: manual_immediate
 server:
   port: 8081

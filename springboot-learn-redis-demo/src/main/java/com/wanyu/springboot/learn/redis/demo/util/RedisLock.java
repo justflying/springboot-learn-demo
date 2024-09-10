@@ -1,5 +1,7 @@
 package com.wanyu.springboot.learn.redis.demo.util;
 
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -12,8 +14,33 @@ import java.util.concurrent.TimeUnit;
 public interface RedisLock {
 
 
+    /**
+     * 尝试获取redis锁
+     * @param lockKey key
+     * @param lockValue value
+      * @param expireTime 过期时间
+     * @param timeUnit 时间单位
+     * @return boolean 是否获得锁成功
+     */
     boolean tryGetDistributeLock(String lockKey,String lockValue,
                                  Integer expireTime, TimeUnit timeUnit);
 
+    /**
+     * 释放redis分布式锁
+     * @param lockKey key
+     * @param lockValue value
+     * @return boolean 是否释放成功
+     */
     boolean releaseDistributeLock(String lockKey,String lockValue);
+
+    /**
+     * 进行锁续约
+     * @param lockKey key
+     * @param lockValue value
+     * @param expireTime 过期时间
+     * @param timeUnit 时间单位
+     * @param scheduledExecutorService 定时线程池
+     */
+    ScheduledFuture<?> renewLock(String lockKey, String lockValue, Integer expireTime,
+                              TimeUnit timeUnit, ScheduledExecutorService scheduledExecutorService);
 }

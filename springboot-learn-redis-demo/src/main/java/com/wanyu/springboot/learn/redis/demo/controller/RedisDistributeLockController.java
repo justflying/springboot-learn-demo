@@ -7,6 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -29,14 +33,20 @@ public class RedisDistributeLockController {
     @Autowired
     private RedissonClient redissonClient;
 
+    ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+
     @RequestMapping(value = "/lettuce-lock")
     public String lettuceLock(){
         String lockKey = "lockKey";
-        String lockValue = "lockValue";
+        String lockValue = UUID.randomUUID().toString();
         boolean lockResult = lettuceDistributeLock.tryGetDistributeLock(lockKey, lockValue,
                 2, TimeUnit.MINUTES);
         if(lockResult){
+            ScheduledFuture<?> scheduledFuture = lettuceDistributeLock.renewLock(lockKey, lockValue, 10,
+                    TimeUnit.SECONDS, scheduledExecutorService);
             System.out.println("开始执行实际业务");
+            // 停止定时任务的执行
+            scheduledFuture.cancel(true);
             if(lettuceDistributeLock.releaseDistributeLock(lockKey, lockValue)){
                 System.out.println("执行完业务以后，释放锁");
             }
@@ -49,13 +59,20 @@ public class RedisDistributeLockController {
     public String jedisLock(){
         String lockKey = "lockKey";
         String lockValue = "lockValue";
+
         boolean lockResult = jedisDistributeLock.tryGetDistributeLock(lockKey, lockValue,
-                2, TimeUnit.MINUTES);
+                10, TimeUnit.SECONDS);
+
         if(lockResult){
+            ScheduledFuture<?> scheduledFuture = jedisDistributeLock.renewLock(lockKey, lockValue, 10, TimeUnit.SECONDS,
+                    scheduledExecutorService);
             System.out.println("开始执行实际业务");
+            // 停止定时任务的执行
+            scheduledFuture.cancel(true);
             if(jedisDistributeLock.releaseDistributeLock(lockKey, lockValue)){
                 System.out.println("执行完业务，释放锁");
             }
+
             return "success";
         }
         return "over";

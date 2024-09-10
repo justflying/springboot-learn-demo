@@ -1,4 +1,4 @@
-package com.wanyu.springboot.learn.kafka.demo.producer;
+package com.wanyu.learn.kafka.demo.producer;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;

@@ -1,4 +1,4 @@
-package com.wanyu.springboot.learn.kafka.demo.consumer;
+package com.wanyu.learn.kafka.demo.consumer;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
