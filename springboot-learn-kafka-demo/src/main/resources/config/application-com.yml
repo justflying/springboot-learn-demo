@@ -1,6 +1,6 @@
 spring:
   kafka:
-    bootstrap-servers: 192.168.45.100:9092,192.168.45.101:9092,192.168.45.102:9092
+    bootstrap-servers: 127.0.0.1:9092
     producer:
       # 生产者序列化方式
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -13,6 +13,9 @@ spring:
       buffer-memory: 33554432
       # 所有ISR集合中的副本收到消息时进行返回，防止因为leader副本出问题而导致消息丢失
       acks: all
+      properties:
+        interceptor:
+          classes: com.wanyu.springboot.learn.kafka.demo.interceptors.AddTimeStampInterceptor
     consumer:
       # 消费者所属分组
       group-id: default_consumer_group
@@ -23,7 +26,7 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       # 消费者消费时，如果没有消费记录，指定从哪里开始消费
-      auto-offset-reset: earliest
+      auto-offset-reset: latest
     listener:
       # 在监听器容器中运行的线程数
       concurrency: 5
@@ -31,3 +34,7 @@ spring:
       ack-mode: manual_immediate
 server:
   port: 8081
+
+logging:
+  level:
+    org.apache.kafka.clients: ERROR
